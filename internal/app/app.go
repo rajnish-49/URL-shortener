@@ -6,6 +6,8 @@ import (
 
 	"url-shortener/internal/config"
 	handlerhttp "url-shortener/internal/handler/http"
+	"url-shortener/internal/repository/inmemory"
+	"url-shortener/internal/service"
 )
 
 type App struct {
@@ -20,7 +22,13 @@ func New(cfg config.Config) *App {
 
 func (a *App) Run() error {
 	mux := http.NewServeMux()
+
+	urlRepo := inmemory.NewURLRepository()
+	urlService := service.NewURLService(urlRepo)
+	urlHandler := handlerhttp.NewURLHandler(urlService, a.cfg.BaseURL)
+
 	mux.HandleFunc("/health", handlerhttp.Health)
+	mux.HandleFunc("/shorten", urlHandler.Shorten)
 
 	log.Printf("server running on :%s", a.cfg.Port)
 
