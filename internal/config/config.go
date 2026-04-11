@@ -4,6 +4,8 @@ import "os"
 
 type Config struct{
 	Port string 
+	BaseURL string 
+	DatabaseURL string 
 }
 
 func Load() Config{
@@ -12,7 +14,16 @@ func Load() Config{
 		port = "8080"
 	}
 
-	return Config {
-		Port : port,
+	baseURL := os.Getenv("BASE_URL")
+	if baseURL== ""{
+		baseURL = "http://localhost:" + port
+	}
+
+	databaseURL := os.Getenv("DATABASE_URL")
+
+	return Config{
+		Port:        port,
+		BaseURL:     baseURL,
+		DatabaseURL: databaseURL,
 	}
 }
