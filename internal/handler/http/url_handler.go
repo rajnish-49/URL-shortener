@@ -1,8 +1,9 @@
 package http
 
 import (
-	
+	"strings"
 	"url-shortener/internal/service"
+
 
 	"encoding/json"
 	"net/http"
@@ -59,4 +60,28 @@ func (h *URLHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func (h *URLHandler) Redirect(w http.ResponseWriter , r *http.Request){
+
+	if r.Method != http.MethodGet{
+		http.Error (w , "method not allowed" , http.StatusMethodNotAllowed)
+		return 
+	}
+
+
+	code := strings.TrimPrefix(r.URL.Path  ,"/")
+		if code == ""{
+			http.NotFound(w , r)
+			return 
+		}
+
+	result ,err := h.service.GetByCode(r.Context() , code )
+	if err != nil {
+		http.NotFound(w , r)
+		return 
+	}
+
+	http.Redirect( w , r , result.LongURL , http.StatusFound)
+
 }

@@ -29,6 +29,7 @@ func (a *App) Run() error {
 
 	mux.HandleFunc("/health", handlerhttp.Health)
 	mux.HandleFunc("/shorten", urlHandler.Shorten)
+	mux.HandleFunc("/" , urlHandler.Redirect)
 
 	log.Printf("server running on :%s", a.cfg.Port)
 
