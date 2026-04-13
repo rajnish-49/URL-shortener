@@ -1,10 +1,12 @@
 package app
 
 import (
+	"context"
 	"log"
 	"net/http"
 
 	"url-shortener/internal/config"
+	"url-shortener/internal/database"
 	handlerhttp "url-shortener/internal/handler/http"
 	"url-shortener/internal/repository/inmemory"
 	"url-shortener/internal/service"
@@ -21,6 +23,14 @@ func New(cfg config.Config) *App {
 }
 
 func (a *App) Run() error {
+	ctx := context.Background()
+
+	pool, err := database.NewPostgresPool(ctx, a.cfg.DatabaseURL)
+	if err != nil {
+		return err
+	}
+	defer pool.Close()
+
 	mux := http.NewServeMux()
 
 	urlRepo := inmemory.NewURLRepository()
@@ -29,7 +39,7 @@ func (a *App) Run() error {
 
 	mux.HandleFunc("/health", handlerhttp.Health)
 	mux.HandleFunc("/shorten", urlHandler.Shorten)
-	mux.HandleFunc("/" , urlHandler.Redirect)
+	mux.HandleFunc("/", urlHandler.Redirect)
 
 	log.Printf("server running on :%s", a.cfg.Port)
 
