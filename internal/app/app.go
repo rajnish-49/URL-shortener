@@ -8,7 +8,7 @@ import (
 	"url-shortener/internal/config"
 	"url-shortener/internal/database"
 	handlerhttp "url-shortener/internal/handler/http"
-	"url-shortener/internal/repository/inmemory"
+	"url-shortener/internal/repository/postgres"
 	"url-shortener/internal/service"
 )
 
@@ -33,7 +33,7 @@ func (a *App) Run() error {
 
 	mux := http.NewServeMux()
 
-	urlRepo := inmemory.NewURLRepository()
+	urlRepo := postgres.NewURLRepository(pool)
 	urlService := service.NewURLService(urlRepo)
 	urlHandler := handlerhttp.NewURLHandler(urlService, a.cfg.BaseURL)
 
