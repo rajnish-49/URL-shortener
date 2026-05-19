@@ -62,3 +62,17 @@ func (s *URLService) Create(ctx context.Context, longURL string) (domain.URL, er
 func (s *URLService) GetByCode(ctx context.Context, code string) (domain.URL, error) {
 	return s.repo.GetByCode(ctx, code)
 }
+
+func (s *URLService) Resolve(ctx context.Context, code string) (domain.URL, error) {
+	url, err := s.repo.GetByCode(ctx, code)
+	if err != nil {
+		return domain.URL{}, err
+	}
+
+	if err := s.repo.IncrementClickCount(ctx, code); err != nil {
+		return domain.URL{}, err
+	}
+
+	return url, nil
+}
+

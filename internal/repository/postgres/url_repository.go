@@ -63,3 +63,14 @@ func (r *URLRepository) Exists(ctx context.Context, code string) (bool, error) {
 
 	return exists, nil
 }
+
+func (r *URLRepository ) IncrementClickCount(ctx context.Context , code string) error {
+	_ , err := r.pool.Exec(ctx , `
+	UPDATE urls
+	SET click_count = click_count + 1 
+	WHERE short_code = $1 
+	` , code )
+
+
+	return err 
+}
